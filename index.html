@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ The Tome of Dice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:    #1e1610;
+    --bg-mid:     #261d12;
+    --bg-card:    #2e2214;
+    --bg-card2:   #38291a;
+    --bg-input:   #1a1208;
+    --gold:       #f0c040;
+    --gold-light: #f8d878;
+    --gold-dim:   #b8922e;
+    --gold-faint: #5a461a;
+    --ember:      #f07030;
+    --ember-dim:  #994020;
+    --blood:      #c84040;
+    --blood-light:#e06060;
+    --text-bright: #f8ecd4;
+    --text-mid:    #dfc898;
+    --text-dim:    #a08850;
+    --text-muted:  #6a5830;
+    --border:      #4a3820;
+    --border-gold: #7a5c28;
+    --border-bright: #9a7c3a;
+    --shadow-gold: rgba(240,192,64,0.18);
+    --shadow-ember: rgba(240,112,48,0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 17px; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-bright);
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 1.05rem;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(240,192,64,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 85%, rgba(240,112,48,0.06) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  header {
+    text-align: center;
+    padding: 28px 0 22px;
+  }
+
+  header::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold), var(--gold-dim), transparent);
+    margin-top: 22px;
+  }
+
+  .title-ornament {
+    font-size: 0.95rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--gold-light);
+    text-shadow: 0 0 40px rgba(240,192,64,0.45), 0 2px 4px rgba(0,0,0,0.6);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    margin: 6px 0;
+  }
+
+  .subtitle {
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 22px;
+    margin-top: 26px;
+  }
+
+  @media (max-width: 760px) { .main-layout { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold), var(--gold-dim), transparent);
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg-mid);
+  }
+
+  .tab {
+    padding: 13px 18px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--gold); background: rgba(240,192,64,0.04); }
+  .tab.active { color: var(--gold-light); border-bottom-color: var(--gold); background: rgba(240,192,64,0.07); }
+
+  .tab-content { display: none; padding: 22px; }
+  .tab-content.active { display: block; }
+
+  .dice-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .die-btn {
+    aspect-ratio: 1;
+    background: var(--bg-card2);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .die-btn:hover {
+    border-color: var(--gold-dim);
+    background: #40301a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 0 12px var(--shadow-gold);
+  }
+
+  .die-btn:active { transform: translateY(0); }
+
+  .die-btn.selected {
+    border-color: var(--ember);
+    background: #3a2010;
+    box-shadow: 0 0 16px var(--shadow-ember), inset 0 0 12px rgba(240,112,48,0.08);
+  }
+
+  .die-shape { font-size: 2rem; line-height: 1; filter: drop-shadow(0 0 5px rgba(240,192,64,0.4)); }
+  .die-btn.selected .die-shape { filter: drop-shadow(0 0 6px rgba(240,112,48,0.7)); }
+
+  .die-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-mid);
+  }
+
+  .die-btn.selected .die-label { color: var(--ember); }
+  .die-btn:hover .die-label { color: var(--gold); }
+
+  .roll-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .input-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  input[type="number"], input[type="text"], select {
+    background: var(--bg-input);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+    color: var(--text-bright);
+    padding: 10px 12px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(240,192,64,0.14);
+  }
+
+  input[type="number"] { font-family: 'Cinzel', serif; font-size: 1rem; }
+  select option { background: var(--bg-card); color: var(--text-bright); }
+
+  .btn {
+    padding: 12px 22px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(160deg, #8a5c10, #c08018, #8a5c10);
+    color: var(--text-bright);
+    border: 1px solid var(--gold-dim);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(160deg, #a87018, #e09820, #a87018);
+    border-color: var(--gold);
+    box-shadow: 0 4px 20px rgba(240,192,64,0.25);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: var(--bg-card2);
+    color: var(--text-mid);
+    border: 1px solid var(--border-gold);
+  }
+
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); background: #42301a; }
+
+  .btn-danger {
+    background: rgba(138,40,40,0.35);
+    color: #e88080;
+    border: 1px solid rgba(200,64,64,0.5);
+  }
+
+  .btn-danger:hover { background: rgba(180,50,50,0.5); color: #f0a0a0; }
+
+  .btn-full { width: 100%; margin-top: 8px; }
+  .btn-sm { padding: 8px 14px; font-size: 0.76rem; }
+
+  .roll-result {
+    min-height: 130px;
+    background: var(--bg-input);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    margin-top: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .roll-result.rolling { border-color: var(--ember); box-shadow: 0 0 28px var(--shadow-ember); }
+
+  .roll-number {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    text-shadow: 0 0 30px rgba(240,192,64,0.55), 0 2px 6px rgba(0,0,0,0.6);
+    line-height: 1;
+  }
+
+  .roll-number.nat20 {
+    color: #ffe060;
+    text-shadow: 0 0 50px rgba(255,224,96,0.9), 0 0 20px rgba(255,200,0,0.5);
+    animation: gleam 0.5s ease;
+  }
+
+  .roll-number.nat1 { color: var(--blood-light); text-shadow: 0 0 40px rgba(192,64,64,0.8); }
+
+  @keyframes gleam {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes rollAnim {
+    0%   { transform: scale(0.3) rotate(-15deg); opacity: 0; filter: blur(4px); }
+    40%  { transform: scale(1.15) rotate(4deg);  opacity: 1; filter: blur(0); }
+    65%  { transform: scale(0.95) rotate(-2deg); }
+    82%  { transform: scale(1.05) rotate(1deg);  }
+    100% { transform: scale(1)    rotate(0deg);  }
+  }
+
+  .roll-number.animating { animation: rollAnim 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  /* Particle burst on roll */
+  @keyframes particle {
+    0%   { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
+  .particle {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    pointer-events: none;
+    animation: particle 0.6s ease-out forwards;
+  }
+
+  /* Shimmer sweep on result box */
+  @keyframes shimmer {
+    0%   { left: -100%; }
+    100% { left: 200%; }
+  }
+
+  .roll-result.flash::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; bottom: 0;
+    width: 60%;
+    background: linear-gradient(90deg, transparent, rgba(240,192,64,0.18), transparent);
+    animation: shimmer 0.55s ease forwards;
+    pointer-events: none;
+  }
+
+  /* Die button shake on select */
+  @keyframes diePick {
+    0%,100% { transform: translateY(-2px) rotate(0deg); }
+    25%      { transform: translateY(-4px) rotate(-5deg); }
+    75%      { transform: translateY(-4px) rotate(5deg); }
+  }
+
+  .die-btn.just-selected { animation: diePick 0.25s ease; }
+
+  /* Nat20 star burst */
+  @keyframes nat20burst {
+    0%   { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  .nat20-ring {
+    position: absolute;
+    width: 80px; height: 80px;
+    border: 3px solid #ffe060;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: nat20burst 0.6s ease-out forwards;
+  }
+
+  /* Nat1 shake */
+  @keyframes nat1shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px) rotate(-3deg); }
+    40%     { transform: translateX(8px) rotate(3deg); }
+    60%     { transform: translateX(-5px) rotate(-2deg); }
+    80%     { transform: translateX(5px) rotate(2deg); }
+  }
+
+  .roll-number.nat1.animating { animation: rollAnim 0.4s ease forwards, nat1shake 0.5s 0.4s ease; }
+
+  /* Tab content fade in */
+  @keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tab-content.active { animation: tabFadeIn 0.2s ease; }
+
+  /* Button press ripple */
+  .btn-primary { overflow: hidden; }
+
+  @keyframes ripple {
+    0%   { transform: scale(0); opacity: 0.4; }
+    100% { transform: scale(4); opacity: 0; }
+  }
+
+  .ripple-el {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    width: 60px; height: 60px;
+    margin-left: -30px; margin-top: -30px;
+    animation: ripple 0.5s linear;
+    pointer-events: none;
+  }
+
+  /* History entry slide in */
+  @keyframes histSlide {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .history-entry:first-child { animation: histSlide 0.25s ease; }
+
+  .roll-desc {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  .roll-breakdown {
+    font-family: 'Cinzel', serif;
+    font-size: 0.88rem;
+    color: var(--text-mid);
+    margin-top: 5px;
+    letter-spacing: 0.06em;
+  }
+
+  .special-msg {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.1rem;
+    margin-top: 8px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .nat20-msg { color: #ffe060; }
+  .nat1-msg  { color: var(--blood-light); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .mode-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+
+  .mode-btn {
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--bg-card2);
+    color: var(--text-dim);
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .mode-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .mode-btn.active { background: rgba(240,192,64,0.12); color: var(--gold-light); border-color: var(--gold); }
+
+  .char-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .char-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .char-card:hover { border-color: var(--border-gold); }
+
+  .char-card.selected {
+    border-color: var(--gold);
+    background: #3a2a10;
+  }
+
+  .char-card.selected::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+    border-radius: 5px 0 0 5px;
+  }
+
+  .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  .char-stats-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+
+  .stat-pill {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 7px;
+  }
+
+  .char-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+    padding: 10px 6px;
+  }
+
+  .stat-input-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold-dim);
+  }
+
+  .stat-input-group input {
+    text-align: center;
+    padding: 4px 2px;
+    font-size: 1.2rem;
+    font-family: 'Cinzel', serif;
+    border: none;
+    background: transparent;
+    color: var(--text-bright);
+    width: 100%;
+  }
+
+  .stat-mod {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+  }
+
+  .history-log {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .history-log::-webkit-scrollbar { width: 7px; }
+  .history-log::-webkit-scrollbar-track { background: var(--bg-input); }
+  .history-log::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 4px; }
+
+  .history-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 10px;
+    border-bottom: 1px solid rgba(74,56,32,0.6);
+    animation: fadeUp 0.2s ease;
+  }
+
+  .history-entry:last-child { border-bottom: none; }
+  .die-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; color: var(--gold-dim); }
+
+  .entry-text {
+    flex: 1;
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    line-height: 1.45;
+  }
+
+  .history-empty {
+    text-align: center;
+    padding: 36px;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+
+  .initiative-results {
+    background: var(--bg-input);
+    border: 2px solid var(--border-gold);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 18px;
+  }
+
+  .init-header {
+    padding: 12px 18px;
+    background: rgba(240,192,64,0.1);
+    border-bottom: 1px solid var(--border-gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--gold-light);
+    text-transform: uppercase;
+  }
+
+  .init-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+    animation: fadeUp 0.25s ease;
+  }
+
+  .init-row:last-child { border-bottom: none; }
+
+  .init-rank {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.3rem;
+    color: var(--gold-dim);
+    width: 32px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .init-name {
+    flex: 1;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .init-breakdown {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    margin-top: 2px;
+  }
+
+  .init-score {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.7rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 12px rgba(240,192,64,0.45);
+  }
+
+  .multi-roll-results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px 0 6px;
+  }
+
+  .multi-die {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.5rem;
+    color: var(--gold-light);
+    background: var(--bg-card2);
+    border: 1px solid var(--border-gold);
+    border-radius: 5px;
+    padding: 8px 16px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .skill-section { margin-bottom: 14px; }
+
+  .skill-ability-header {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .skill-name { font-size: 1rem; flex: 1; color: var(--text-mid); }
+
+  .skill-mod-input {
+    width: 72px !important;
+    text-align: center !important;
+    padding: 6px 8px !important;
+    font-size: 0.95rem !important;
+    font-family: 'Cinzel', serif !important;
+  }
+
+  .form-section {
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .field-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  @media (max-width: 520px) {
+    .field-grid, .field-grid.three { grid-template-columns: 1fr; }
+  }
+
+  textarea {
+    background: var(--bg-input);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+    color: var(--text-bright);
+    padding: 10px 12px;
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 1.05rem;
+    width: 100%;
+    min-height: 82px;
+    resize: vertical;
+    outline: none;
+  }
+
+  textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(240,192,64,0.14);
+  }
+
+  .prof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-mid);
+    font-size: 0.98rem;
+    min-height: 28px;
+  }
+
+  .check-row input {
+    accent-color: var(--gold);
+    width: 16px;
+    height: 16px;
+  }
+
+  .check-row select {
+    padding: 5px 8px;
+    font-size: 0.9rem;
+  }
+
+  .sheet-banner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 680px) { .sheet-banner { grid-template-columns: 1fr; } }
+
+  .sheet-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    color: var(--gold-light);
+  }
+
+  .sheet-meta {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 1.08rem;
+    margin-top: 4px;
+  }
+
+  .sheet-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(90px, 1fr));
+    gap: 8px;
+  }
+
+  .sheet-badge, .derived-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border-gold);
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  .sheet-badge span, .derived-card span {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .sheet-badge strong, .derived-card strong {
+    display: block;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    color: var(--gold-light);
+    margin-top: 3px;
+  }
+
+  .derived-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 760px) { .derived-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .ability-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 760px) { .ability-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+  .ability-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-gold);
+    border-radius: 5px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .ability-card span {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--gold-dim);
+  }
+
+  .ability-card strong {
+    display: block;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.7rem;
+    color: var(--text-bright);
+  }
+
+  .ability-card em {
+    color: var(--text-mid);
+    font-style: normal;
+    font-family: 'Cinzel', serif;
+  }
+
+  .sheet-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  @media (max-width: 760px) { .sheet-columns { grid-template-columns: 1fr; } }
+
+  .sheet-block {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px;
+  }
+
+  .sheet-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    color: var(--text-mid);
+    border-bottom: 1px solid rgba(74,56,32,0.45);
+  }
+
+  .sheet-line:last-child { border-bottom: none; }
+
+  .sheet-line strong {
+    color: var(--text-bright);
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+  }
+
+  .level-box {
+    background: rgba(240,192,64,0.08);
+    border: 1px solid var(--border-gold);
+    border-radius: 5px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    margin: 16px 0;
+  }
+
+  .equipped-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(240,192,64,0.18);
+    color: var(--gold-light);
+    border: 1px solid var(--gold-dim);
+    border-radius: 3px;
+    padding: 2px 8px;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .toast-container {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--bg-card2);
+    border: 1px solid var(--border-gold);
+    border-left: 4px solid var(--gold);
+    padding: 13px 18px;
+    border-radius: 5px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    animation: slideIn 0.2s ease;
+    max-width: 300px;
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+
+  ::-webkit-scrollbar { width: 7px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="title-ornament">⚔ &nbsp; Roll the Fates &nbsp; ⚔</div>
+    <h1>The Tome of Dice</h1>
+    <div class="subtitle">A D&amp;D 5e Companion</div>
+  </header>
+
+  <div class="main-layout">
+
+    <aside>
+      <div class="panel" style="height:100%">
+        <div class="tabs">
+          <button class="tab active" onclick="switchCharTab('roster')">⚔ Roster</button>
+          <button class="tab" id="tab-create-btn" onclick="switchCharTab('create')">+ New</button>
+          <button class="tab" id="tab-edit-btn" onclick="switchCharTab('edit')" style="display:none">✏ Edit</button>
+        </div>
+
+        <div id="char-roster" class="tab-content active" style="max-height:calc(100vh - 200px);overflow-y:auto">
+          <div id="char-list" class="char-list"></div>
+          <div class="divider"></div>
+          <button class="btn btn-secondary btn-full btn-sm" onclick="switchCharTab('create')">+ Create New Character</button>
+        </div>
+
+        <div id="char-create" class="tab-content" style="display:none;max-height:calc(100vh - 180px);overflow-y:auto">
+          <div class="input-group" style="margin-bottom:14px">
+            <label class="input-label">Character Name</label>
+            <input type="text" id="new-char-name" placeholder="Enter name...">
+          </div>
+          <div class="form-section">
+            <div class="section-title">Identity</div>
+            <div class="field-grid">
+              <div class="input-group">
+                <label class="input-label">Class</label>
+                <select id="new-class" onchange="syncClassDefaults('new')"></select>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Level</label>
+                <input type="number" id="new-level" min="1" max="20" value="1" oninput="syncCharacterMath('new')">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Species / Ancestry</label>
+                <input type="text" id="new-species" placeholder="Human, elf, dwarf...">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Background</label>
+                <input type="text" id="new-background" placeholder="Acolyte, soldier...">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Alignment</label>
+                <input type="text" id="new-alignment" placeholder="Optional">
+              </div>
+              <div class="input-group">
+                <label class="input-label">XP</label>
+                <input type="number" id="new-xp" min="0" value="0">
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Ability Scores</div>
+            <div class="stat-grid">
+              <div class="stat-input-group"><span class="stat-input-label">STR</span><input type="number" id="s-STR" min="1" max="30" value="10" oninput="updateStatMod(this,'m-STR');syncCharacterMath('new')"><span class="stat-mod" id="m-STR">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">DEX</span><input type="number" id="s-DEX" min="1" max="30" value="10" oninput="updateStatMod(this,'m-DEX');syncCharacterMath('new')"><span class="stat-mod" id="m-DEX">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">CON</span><input type="number" id="s-CON" min="1" max="30" value="10" oninput="updateStatMod(this,'m-CON');syncCharacterMath('new')"><span class="stat-mod" id="m-CON">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">INT</span><input type="number" id="s-INT" min="1" max="30" value="10" oninput="updateStatMod(this,'m-INT');syncCharacterMath('new')"><span class="stat-mod" id="m-INT">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">WIS</span><input type="number" id="s-WIS" min="1" max="30" value="10" oninput="updateStatMod(this,'m-WIS');syncCharacterMath('new')"><span class="stat-mod" id="m-WIS">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">CHA</span><input type="number" id="s-CHA" min="1" max="30" value="10" oninput="updateStatMod(this,'m-CHA');syncCharacterMath('new')"><span class="stat-mod" id="m-CHA">+0</span></div>
+            </div>
+            <button class="btn btn-secondary btn-full btn-sm" onclick="useStandardArray('new')">Use Standard Array</button>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Defenses &amp; Vitality</div>
+            <div class="field-grid three">
+              <div class="input-group">
+                <label class="input-label">Armor Class</label>
+                <input type="number" id="new-ac" min="1" max="30" value="10">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Speed</label>
+                <input type="number" id="new-speed" min="0" value="30">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Initiative Bonus</label>
+                <input type="number" id="new-init-bonus" value="0">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Max HP</label>
+                <input type="number" id="new-max-hp" min="1" value="8">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Current HP</label>
+                <input type="number" id="new-current-hp" min="0" value="8">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Hit Dice</label>
+                <input type="text" id="new-hit-dice" readonly value="1d8">
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Saving Throws</div>
+            <div class="prof-grid" id="new-save-profs"></div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Skill Training</div>
+            <div id="new-skill-profs"></div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Equipment, Features &amp; Spells</div>
+            <textarea id="new-notes" placeholder="Weapons, armor, class features, spellcasting notes, languages..."></textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" style="flex:1" onclick="createCharacter()">Create</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="switchCharTab('roster')">Cancel</button>
+          </div>
+        </div>
+
+        <div id="char-edit" class="tab-content" style="display:none;max-height:calc(100vh - 180px);overflow-y:auto">
+          <div class="input-group" style="margin-bottom:14px">
+            <label class="input-label">Character Name</label>
+            <input type="text" id="edit-char-name" placeholder="Character name">
+          </div>
+          <div class="form-section">
+            <div class="section-title">Identity</div>
+            <div class="field-grid">
+              <div class="input-group">
+                <label class="input-label">Class</label>
+                <select id="edit-class" onchange="syncClassDefaults('edit')"></select>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Level</label>
+                <input type="number" id="edit-level" min="1" max="20" value="1" oninput="syncCharacterMath('edit')">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Species / Ancestry</label>
+                <input type="text" id="edit-species" placeholder="Species">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Background</label>
+                <input type="text" id="edit-background" placeholder="Background">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Alignment</label>
+                <input type="text" id="edit-alignment" placeholder="Optional">
+              </div>
+              <div class="input-group">
+                <label class="input-label">XP</label>
+                <input type="number" id="edit-xp" min="0" value="0">
+              </div>
+            </div>
+          </div>
+          <div class="level-box">
+            <div class="section-title">Level Up</div>
+            <div class="field-grid">
+              <div class="input-group">
+                <label class="input-label">HP Gain</label>
+                <select id="level-hp-method">
+                  <option value="fixed">Fixed class average</option>
+                  <option value="roll">Roll hit die</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Preview</label>
+                <input type="text" id="level-preview" readonly value="Ready">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full btn-sm" onclick="levelUpCharacter()">Advance One Level</button>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Ability Scores</div>
+            <div class="stat-grid">
+              <div class="stat-input-group"><span class="stat-input-label">STR</span><input type="number" id="e-STR" min="1" max="30" value="10" oninput="updateStatMod(this,'em-STR');syncCharacterMath('edit')"><span class="stat-mod" id="em-STR">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">DEX</span><input type="number" id="e-DEX" min="1" max="30" value="10" oninput="updateStatMod(this,'em-DEX');syncCharacterMath('edit')"><span class="stat-mod" id="em-DEX">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">CON</span><input type="number" id="e-CON" min="1" max="30" value="10" oninput="updateStatMod(this,'em-CON');syncCharacterMath('edit')"><span class="stat-mod" id="em-CON">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">INT</span><input type="number" id="e-INT" min="1" max="30" value="10" oninput="updateStatMod(this,'em-INT');syncCharacterMath('edit')"><span class="stat-mod" id="em-INT">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">WIS</span><input type="number" id="e-WIS" min="1" max="30" value="10" oninput="updateStatMod(this,'em-WIS');syncCharacterMath('edit')"><span class="stat-mod" id="em-WIS">+0</span></div>
+              <div class="stat-input-group"><span class="stat-input-label">CHA</span><input type="number" id="e-CHA" min="1" max="30" value="10" oninput="updateStatMod(this,'em-CHA');syncCharacterMath('edit')"><span class="stat-mod" id="em-CHA">+0</span></div>
+            </div>
+            <button class="btn btn-secondary btn-full btn-sm" onclick="useStandardArray('edit')">Use Standard Array</button>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Defenses &amp; Vitality</div>
+            <div class="field-grid three">
+              <div class="input-group">
+                <label class="input-label">Armor Class</label>
+                <input type="number" id="edit-ac" min="1" max="30" value="10">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Speed</label>
+                <input type="number" id="edit-speed" min="0" value="30">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Initiative Bonus</label>
+                <input type="number" id="edit-init-bonus" value="0">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Max HP</label>
+                <input type="number" id="edit-max-hp" min="1" value="8">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Current HP</label>
+                <input type="number" id="edit-current-hp" min="0" value="8">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Hit Dice</label>
+                <input type="text" id="edit-hit-dice" readonly value="1d8">
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="form-section">
+            <div class="section-title">Saving Throws</div>
+            <div class="prof-grid" id="edit-save-profs"></div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Skill Training</div>
+            <div id="edit-skill-profs"></div>
+          </div>
+          <div class="form-section">
+            <div class="section-title">Equipment, Features &amp; Spells</div>
+            <textarea id="edit-notes" placeholder="Weapons, armor, class features, spellcasting notes, languages..."></textarea>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-primary" style="flex:1" onclick="saveEditCharacter()">Save Changes</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="switchCharTab('roster')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="tabs">
+        <button class="tab" onclick="switchMainTab('sheet')">☰ Sheet</button>
+        <button class="tab active" onclick="switchMainTab('roll')">🎲 Dice</button>
+        <button class="tab" onclick="switchMainTab('d20')">⚡ D20</button>
+        <button class="tab" onclick="switchMainTab('initiative')">⚔ Initiative</button>
+        <button class="tab" onclick="switchMainTab('history')">📜 History</button>
+      </div>
+
+      <div id="tab-sheet" class="tab-content">
+        <div id="character-sheet">
+          <div class="history-empty">Equip a character from the roster to view the sheet.</div>
+        </div>
+      </div>
+
+      <div id="tab-roll" class="tab-content active">
+        <div class="dice-grid" id="dice-grid"></div>
+        <div class="roll-controls">
+          <div class="input-group">
+            <label class="input-label">Quantity</label>
+            <input type="number" id="dice-qty" min="1" max="20" value="1">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Modifier</label>
+            <input type="number" id="dice-mod" value="0">
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label">Purpose (optional)</label>
+          <input type="text" id="dice-desc" placeholder="What is this roll for?">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="rollDice()">🎲 Cast the Dice</button>
+        <div class="roll-result" id="roll-result">
+          <div class="roll-desc" style="color:var(--text-muted)">Select a die above, then roll</div>
+        </div>
+      </div>
+
+      <div id="tab-d20" class="tab-content">
+        <div class="mode-group">
+          <button class="mode-btn active" id="mode-normal" onclick="setD20Mode('normal')">Normal</button>
+          <button class="mode-btn" id="mode-advantage" onclick="setD20Mode('advantage')">Advantage</button>
+          <button class="mode-btn" id="mode-disadvantage" onclick="setD20Mode('disadvantage')">Disadvantage</button>
+        </div>
+        <div class="divider"></div>
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label">Roll Type</label>
+          <select id="d20-roll-type" onchange="updateD20Controls()">
+            <option value="ability">Ability / Skill Check</option>
+            <option value="save">Saving Throw</option>
+            <option value="plain">Pure D20 Roll</option>
+          </select>
+        </div>
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label" id="check-type-label">Ability</label>
+          <select id="check-type" onchange="updateSkillOptions()">
+            <option value="">— Pure D20 Roll —</option>
+            <option value="STR">Strength</option>
+            <option value="DEX">Dexterity</option>
+            <option value="CON">Constitution</option>
+            <option value="INT">Intelligence</option>
+            <option value="WIS">Wisdom</option>
+            <option value="CHA">Charisma</option>
+          </select>
+        </div>
+        <div id="skill-select-wrap" style="display:none;margin-bottom:14px" class="input-group">
+          <label class="input-label">Skill (optional)</label>
+          <select id="skill-type"></select>
+        </div>
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label">Purpose (optional)</label>
+          <input type="text" id="d20-desc" placeholder="What is this roll for?">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="rollD20()">🎲 Roll D20</button>
+        <div class="roll-result" id="d20-result">
+          <div class="roll-desc" style="color:var(--text-muted)">Choose a mode and roll</div>
+        </div>
+      </div>
+
+      <div id="tab-initiative" class="tab-content">
+        <p style="font-style:italic;color:var(--text-dim);margin-bottom:18px;font-size:1.05rem;">Roll initiative for your equipped character and any additional adventurers.</p>
+        <div id="init-current-char" style="margin-bottom:16px"></div>
+        <div class="input-group" style="margin-bottom:14px">
+          <label class="input-label">Add More Participants</label>
+          <div style="display:flex;gap:10px">
+            <select id="init-add-select" style="flex:1"><option value="">— Select character —</option></select>
+            <button class="btn btn-secondary btn-sm" onclick="addInitParticipant()">Add</button>
+          </div>
+        </div>
+        <div id="init-participants" style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px"></div>
+        <button class="btn btn-primary btn-full" onclick="rollGroupInitiative()">⚔ Roll Initiative</button>
+        <div id="initiative-results"></div>
+      </div>
+
+      <div id="tab-history" class="tab-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-family:'Cinzel',serif;font-size:0.88rem;font-weight:700;letter-spacing:0.14em;color:var(--text-dim);text-transform:uppercase">Roll History</span>
+          <button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear All</button>
+        </div>
+        <div class="history-log" id="history-log">
+          <div class="history-empty">No rolls yet. Begin your adventure!</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const ABILITY_SKILLS = {
+  STR: ['Athletics'],
+  DEX: ['Acrobatics', 'Sleight of Hand', 'Stealth'],
+  CON: [],
+  INT: ['Arcana', 'History', 'Investigation', 'Nature', 'Religion'],
+  WIS: ['Animal Handling', 'Insight', 'Medicine', 'Perception', 'Survival'],
+  CHA: ['Deception', 'Intimidation', 'Performance', 'Persuasion'],
+};
+
+const ABILITIES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+const ABILITY_NAMES = {
+  STR: 'Strength',
+  DEX: 'Dexterity',
+  CON: 'Constitution',
+  INT: 'Intelligence',
+  WIS: 'Wisdom',
+  CHA: 'Charisma',
+};
+
+const CLASS_RULES = {
+  Artificer: { hitDie: 8, saves: ['CON', 'INT'] },
+  Barbarian: { hitDie: 12, saves: ['STR', 'CON'] },
+  Bard: { hitDie: 8, saves: ['DEX', 'CHA'] },
+  Cleric: { hitDie: 8, saves: ['WIS', 'CHA'] },
+  Druid: { hitDie: 8, saves: ['INT', 'WIS'] },
+  Fighter: { hitDie: 10, saves: ['STR', 'CON'] },
+  Monk: { hitDie: 8, saves: ['STR', 'DEX'] },
+  Paladin: { hitDie: 10, saves: ['WIS', 'CHA'] },
+  Ranger: { hitDie: 10, saves: ['STR', 'DEX'] },
+  Rogue: { hitDie: 8, saves: ['DEX', 'INT'] },
+  Sorcerer: { hitDie: 6, saves: ['CON', 'CHA'] },
+  Warlock: { hitDie: 8, saves: ['WIS', 'CHA'] },
+  Wizard: { hitDie: 6, saves: ['INT', 'WIS'] },
+};
+
+const XP_LEVELS = [0, 0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
+const DIE_SIDES  = [4, 6, 8, 10, 12, 20, 100];
+const DIE_SHAPES = { 4:'⬦', 6:'⬡', 8:'⬟', 10:'⬠', 12:'⬢', 20:'★', 100:'⬤' };
+
+let characters = [], currentCharacter = null, history = [];
+let selectedDie = 20, d20Mode = 'normal';
+let initParticipants = [], editingCharIndex = -1;
+
+function load() {
+  try {
+    const raw = localStorage.getItem('tomeOfDice');
+    if (raw) {
+      const d = JSON.parse(raw);
+      characters = (d.characters || []).map(normalizeCharacter);
+      history    = d.history    || [];
+      if (d.currentCharacter) currentCharacter = characters.find(c => c.name === d.currentCharacter.name) || null;
+    }
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem('tomeOfDice', JSON.stringify({
+    characters, history,
+    currentCharacter: currentCharacter ? { name: currentCharacter.name } : null
+  }));
+}
+
+const statMod  = score => Math.floor((score - 10) / 2);
+const fmtMod   = n => n >= 0 ? `+${n}` : `${n}`;
+const rollDie  = sides => Math.floor(Math.random() * sides) + 1;
+const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+const clampLevel = level => Math.max(1, Math.min(20, parseInt(level) || 1));
+const proficiencyBonus = level => Math.ceil(clampLevel(level) / 4) + 1;
+const hitDieFor = cls => CLASS_RULES[cls]?.hitDie || 8;
+const fixedHpGain = hitDie => Math.floor(hitDie / 2) + 1;
+const skillAbility = skill => Object.entries(ABILITY_SKILLS).find(([, skills]) => skills.includes(skill))?.[0] || '';
+
+function normalizeCharacter(c) {
+  const stats = {};
+  ABILITIES.forEach(ab => stats[ab] = Math.max(1, Math.min(30, parseInt(c.stats?.[ab]) || 10)));
+  const level = clampLevel(c.level || 1);
+  const className = c.className || c.class || 'Fighter';
+  const hitDie = hitDieFor(className);
+  const proficiencies = { saves: {}, skills: {} };
+  ABILITIES.forEach(ab => proficiencies.saves[ab] = !!c.proficiencies?.saves?.[ab]);
+  Object.values(ABILITY_SKILLS).flat().forEach(sk => {
+    const legacyVal = typeof c.skills?.[sk] === 'number' ? c.skills[sk] : null;
+    const base = statMod(stats[skillAbility(sk)]);
+    const pb = proficiencyBonus(level);
+    let legacy = 'none';
+    if (legacyVal === base + (pb * 2)) legacy = 'expertise';
+    else if (legacyVal === base + pb || (legacyVal !== null && legacyVal !== base)) legacy = 'proficient';
+    proficiencies.skills[sk] = c.proficiencies?.skills?.[sk] || legacy;
+  });
+  const maxHp = Math.max(1, parseInt(c.maxHp) || hitDie + statMod(stats.CON));
+  const currentHpRaw = parseInt(c.currentHp ?? maxHp);
+  const currentHp = Number.isFinite(currentHpRaw) ? Math.max(0, currentHpRaw) : maxHp;
+  return {
+    name: c.name || 'Unnamed Hero',
+    className,
+    species: c.species || c.race || '',
+    background: c.background || '',
+    alignment: c.alignment || '',
+    level,
+    xp: parseInt(c.xp) || 0,
+    stats,
+    armorClass: parseInt(c.armorClass ?? c.ac) || 10 + statMod(stats.DEX),
+    speed: parseInt(c.speed) || 30,
+    maxHp,
+    currentHp,
+    tempHp: parseInt(c.tempHp) || 0,
+    initiativeBonus: parseInt(c.initiativeBonus) || 0,
+    proficiencies,
+    notes: c.notes || '',
+  };
+}
+
+function hydrateForms() {
+  ['new', 'edit'].forEach(prefix => {
+    const classSelect = document.getElementById(`${prefix}-class`);
+    if (classSelect && !classSelect.options.length) {
+      classSelect.innerHTML = Object.keys(CLASS_RULES).map(cls => `<option value="${cls}">${cls}</option>`).join('');
+    }
+    buildSaveProfControls(prefix);
+    buildSkillProfControls(prefix);
+  });
+}
+
+function init() {
+  hydrateForms();
+  load();
+  hydrateForms();
+  buildDiceGrid();
+  renderCharList();
+  renderHistory();
+  renderCharacterSheet();
+  updateD20Controls();
+  updateInitSection();
+  updateInitParticipantDropdown();
+  syncClassDefaults('new');
+}
+
+function buildDiceGrid() {
+  const grid = document.getElementById('dice-grid');
+  grid.innerHTML = '';
+  DIE_SIDES.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'die-btn' + (s === selectedDie ? ' selected' : '');
+    btn.id = `die-${s}`;
+    btn.innerHTML = `<span class="die-shape">${DIE_SHAPES[s]}</span><span class="die-label">D${s}</span>`;
+    btn.onclick = () => selectDie(s);
+    grid.appendChild(btn);
+  });
+}
+
+function selectDie(sides) {
+  selectedDie = sides;
+  document.querySelectorAll('.die-btn').forEach(b => b.classList.remove('selected', 'just-selected'));
+  const btn = document.getElementById(`die-${sides}`);
+  btn.classList.add('selected', 'just-selected');
+  btn.addEventListener('animationend', () => btn.classList.remove('just-selected'), { once: true });
+}
+
+function switchMainTab(name) {
+  document.querySelectorAll('#tab-sheet,#tab-roll,#tab-d20,#tab-initiative,#tab-history').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  const tabNames = ['sheet','roll','d20','initiative','history'];
+  document.querySelectorAll('main .tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === name));
+  if (name === 'sheet')      renderCharacterSheet();
+  if (name === 'history')    renderHistory();
+  if (name === 'initiative') updateInitSection();
+}
+
+function switchCharTab(name) {
+  ['roster','create','edit'].forEach(t => {
+    const el = document.getElementById(`char-${t}`);
+    if (el) { el.classList.remove('active'); el.style.display = 'none'; }
+  });
+  const target = document.getElementById(`char-${name}`);
+  if (target) { target.style.display = ''; target.classList.add('active'); }
+  const charTabs = ['roster','create','edit'];
+  document.querySelectorAll('aside .tab').forEach((t, i) => t.classList.toggle('active', charTabs[i] === name));
+  document.getElementById('tab-edit-btn').style.display = name === 'edit' ? '' : 'none';
+  if (name === 'create') clearCreateForm();
+}
+
+function updateStatMod(input, labelId) {
+  document.getElementById(labelId).textContent = fmtMod(statMod(parseInt(input.value) || 10));
+}
+
+function clearCreateForm() {
+  document.getElementById('new-char-name').value = '';
+  document.getElementById('new-class').value = 'Fighter';
+  document.getElementById('new-level').value = 1;
+  document.getElementById('new-species').value = '';
+  document.getElementById('new-background').value = '';
+  document.getElementById('new-alignment').value = '';
+  document.getElementById('new-xp').value = 0;
+  document.getElementById('new-speed').value = 30;
+  document.getElementById('new-init-bonus').value = 0;
+  document.getElementById('new-notes').value = '';
+  ABILITIES.forEach(s => {
+    const el = document.getElementById(`s-${s}`);
+    if (el) { el.value = 10; document.getElementById(`m-${s}`).textContent = '+0'; }
+  });
+  buildSaveProfControls('new');
+  buildSkillProfControls('new');
+  syncClassDefaults('new');
+}
+
+function buildSaveProfControls(prefix, selected = {}) {
+  const container = document.getElementById(`${prefix}-save-profs`);
+  if (!container) return;
+  container.innerHTML = ABILITIES.map(ab => `
+    <label class="check-row">
+      <input type="checkbox" id="${prefix}-save-${ab}" ${selected[ab] ? 'checked' : ''}>
+      ${ABILITY_NAMES[ab]}
+    </label>
+  `).join('');
+}
+
+function buildSkillProfControls(prefix, selected = {}) {
+  const container = document.getElementById(`${prefix}-skill-profs`);
+  if (!container) return;
+  container.innerHTML = Object.entries(ABILITY_SKILLS).map(([ab, skills]) => {
+    if (!skills.length) return '';
+    return `<div class="skill-section">
+      <div class="skill-ability-header">${ABILITY_NAMES[ab]}</div>
+      <div class="prof-grid">${skills.map(sk => {
+        const id = `${prefix}-skill-${sk.replace(/\s+/g,'_')}`;
+        const value = selected[sk] || 'none';
+        return `<label class="check-row" for="${id}">
+          <span style="flex:1">${sk}</span>
+          <select id="${id}">
+            <option value="none"${value === 'none' ? ' selected' : ''}>None</option>
+            <option value="proficient"${value === 'proficient' ? ' selected' : ''}>Prof</option>
+            <option value="expertise"${value === 'expertise' ? ' selected' : ''}>Expert</option>
+          </select>
+        </label>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function syncClassDefaults(prefix) {
+  const cls = document.getElementById(`${prefix}-class`)?.value || 'Fighter';
+  const saveDefaults = {};
+  ABILITIES.forEach(ab => saveDefaults[ab] = CLASS_RULES[cls]?.saves.includes(ab));
+  buildSaveProfControls(prefix, saveDefaults);
+  syncCharacterMath(prefix);
+}
+
+function syncCharacterMath(prefix) {
+  const stats = readStats(prefix === 'new' ? 's' : 'e');
+  const cls = document.getElementById(`${prefix}-class`)?.value || 'Fighter';
+  const level = clampLevel(document.getElementById(`${prefix}-level`)?.value);
+  const hitDie = hitDieFor(cls);
+  const maxHpEl = document.getElementById(`${prefix}-max-hp`);
+  const currentHpEl = document.getElementById(`${prefix}-current-hp`);
+  const hitDiceEl = document.getElementById(`${prefix}-hit-dice`);
+  const previewEl = document.getElementById('level-preview');
+  if (hitDiceEl) hitDiceEl.value = `${level}d${hitDie}`;
+  if (maxHpEl && (!maxHpEl.value || prefix === 'new')) {
+    maxHpEl.value = Math.max(1, hitDie + statMod(stats.CON) + (level - 1) * Math.max(1, fixedHpGain(hitDie) + statMod(stats.CON)));
+  }
+  if (currentHpEl && (!currentHpEl.value || prefix === 'new')) currentHpEl.value = maxHpEl.value;
+  if (prefix === 'edit' && previewEl) {
+    previewEl.value = level >= 20 ? 'Maximum level' : `Next: +${Math.max(1, fixedHpGain(hitDie) + statMod(stats.CON))} HP fixed`;
+  }
+}
+
+function readStats(prefix) {
+  const stats = {};
+  ABILITIES.forEach(ab => stats[ab] = Math.max(1, Math.min(30, parseInt(document.getElementById(`${prefix}-${ab}`)?.value) || 10)));
+  return stats;
+}
+
+function readProficiencies(prefix) {
+  const saves = {}, skills = {};
+  ABILITIES.forEach(ab => saves[ab] = !!document.getElementById(`${prefix}-save-${ab}`)?.checked);
+  Object.values(ABILITY_SKILLS).flat().forEach(sk => {
+    skills[sk] = document.getElementById(`${prefix}-skill-${sk.replace(/\s+/g,'_')}`)?.value || 'none';
+  });
+  return { saves, skills };
+}
+
+function characterFromForm(prefix) {
+  const statPrefix = prefix === 'new' ? 's' : 'e';
+  const stats = readStats(statPrefix);
+  const cls = document.getElementById(`${prefix}-class`).value || 'Fighter';
+  const hitDie = hitDieFor(cls);
+  return normalizeCharacter({
+    name: document.getElementById(`${prefix === 'new' ? 'new' : 'edit'}-char-name`).value.trim(),
+    className: cls,
+    species: document.getElementById(`${prefix}-species`).value.trim(),
+    background: document.getElementById(`${prefix}-background`).value.trim(),
+    alignment: document.getElementById(`${prefix}-alignment`).value.trim(),
+    level: document.getElementById(`${prefix}-level`).value,
+    xp: document.getElementById(`${prefix}-xp`).value,
+    stats,
+    armorClass: document.getElementById(`${prefix}-ac`).value || 10 + statMod(stats.DEX),
+    speed: document.getElementById(`${prefix}-speed`).value || 30,
+    maxHp: document.getElementById(`${prefix}-max-hp`).value || hitDie + statMod(stats.CON),
+    currentHp: document.getElementById(`${prefix}-current-hp`).value || document.getElementById(`${prefix}-max-hp`).value,
+    initiativeBonus: document.getElementById(`${prefix}-init-bonus`).value,
+    proficiencies: readProficiencies(prefix),
+    notes: document.getElementById(`${prefix}-notes`).value.trim(),
+  });
+}
+
+function useStandardArray(prefix) {
+  const statPrefix = prefix === 'new' ? 's' : 'e';
+  const values = { STR: 15, DEX: 14, CON: 13, INT: 12, WIS: 10, CHA: 8 };
+  ABILITIES.forEach(ab => {
+    const el = document.getElementById(`${statPrefix}-${ab}`);
+    if (el) {
+      el.value = values[ab];
+      updateStatMod(el, `${prefix === 'new' ? 'm' : 'em'}-${ab}`);
+    }
+  });
+  syncCharacterMath(prefix);
+}
+
+function createCharacter() {
+  const name = document.getElementById('new-char-name').value.trim();
+  if (!name) { toast('Enter a character name!'); return; }
+  if (characters.find(c => c.name.toLowerCase() === name.toLowerCase())) { toast('That name is already taken!'); return; }
+  const character = characterFromForm('new');
+  characters.push(character);
+  save();
+  toast(`"${name}" added to the roster!`);
+  switchCharTab('roster');
+  renderCharList();
+  updateInitParticipantDropdown();
+}
+
+function renderCharList() {
+  const list = document.getElementById('char-list');
+  if (characters.length === 0) {
+    list.innerHTML = '<div class="history-empty">No adventurers yet.<br>Create your first character!</div>';
+    return;
+  }
+  list.innerHTML = '';
+  characters.forEach((c, i) => {
+    const isEquipped = currentCharacter && currentCharacter.name === c.name;
+    const div = document.createElement('div');
+    div.className = 'char-card' + (isEquipped ? ' selected' : '');
+    div.innerHTML = `
+      <div class="char-name">${esc(c.name)}${isEquipped ? '<span class="equipped-badge">Equipped</span>' : ''}</div>
+      <div style="font-style:italic;color:var(--text-dim);margin-bottom:8px">${esc(c.species || 'Adventurer')} ${esc(c.className || 'Fighter')} · Level ${c.level || 1} · PB ${fmtMod(proficiencyBonus(c.level || 1))}</div>
+      <div class="char-stats-row">${['STR','DEX','CON','INT','WIS','CHA'].map(s =>
+        `<span class="stat-pill">${s} ${c.stats[s]} (${fmtMod(statMod(c.stats[s]))})</span>`).join('')}</div>
+      <div class="char-stats-row">
+        <span class="stat-pill">AC ${c.armorClass}</span>
+        <span class="stat-pill">HP ${c.currentHp}/${c.maxHp}</span>
+        <span class="stat-pill">Speed ${c.speed}</span>
+      </div>
+      <div class="char-actions">
+        <button class="btn btn-secondary btn-sm" onclick="equipCharacter(${i})">${isEquipped ? '✓ Unequip' : 'Equip'}</button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditCharacter(${i})">✏ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCharacter(${i})">✕ Delete</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function equipCharacter(idx) {
+  if (currentCharacter && characters[idx].name === currentCharacter.name) {
+    currentCharacter = null; toast('Character unequipped.');
+  } else {
+    currentCharacter = characters[idx]; toast(`"${currentCharacter.name}" is now equipped!`);
+  }
+  save(); renderCharList(); renderCharacterSheet(); updateD20Controls(); updateInitSection(); updateInitParticipantDropdown();
+}
+
+function deleteCharacter(idx) {
+  const name = characters[idx].name;
+  if (currentCharacter && currentCharacter.name === name) currentCharacter = null;
+  characters.splice(idx, 1);
+  save(); toast(`"${name}" removed.`); renderCharList(); renderCharacterSheet(); updateD20Controls(); updateInitSection(); updateInitParticipantDropdown();
+}
+
+function openEditCharacter(idx) {
+  editingCharIndex = idx;
+  const c = characters[idx];
+  document.getElementById('edit-char-name').value = c.name;
+  document.getElementById('edit-class').value = c.className || 'Fighter';
+  document.getElementById('edit-level').value = c.level || 1;
+  document.getElementById('edit-species').value = c.species || '';
+  document.getElementById('edit-background').value = c.background || '';
+  document.getElementById('edit-alignment').value = c.alignment || '';
+  document.getElementById('edit-xp').value = c.xp || 0;
+  ABILITIES.forEach(s => {
+    const el = document.getElementById(`e-${s}`);
+    const ml = document.getElementById(`em-${s}`);
+    if (el) { el.value = c.stats[s]; ml.textContent = fmtMod(statMod(c.stats[s])); }
+  });
+  document.getElementById('edit-ac').value = c.armorClass || 10;
+  document.getElementById('edit-speed').value = c.speed || 30;
+  document.getElementById('edit-init-bonus').value = c.initiativeBonus || 0;
+  document.getElementById('edit-max-hp').value = c.maxHp || 1;
+  document.getElementById('edit-current-hp').value = c.currentHp ?? c.maxHp ?? 1;
+  document.getElementById('edit-notes').value = c.notes || '';
+  buildSaveProfControls('edit', c.proficiencies?.saves || {});
+  buildSkillProfControls('edit', c.proficiencies?.skills || {});
+  syncCharacterMath('edit');
+
+  document.getElementById('tab-edit-btn').style.display = '';
+  switchCharTab('edit');
+}
+
+function saveEditCharacter() {
+  if (editingCharIndex < 0) return;
+  const c = characters[editingCharIndex];
+  const newName = document.getElementById('edit-char-name').value.trim();
+  if (!newName) { toast('Name cannot be empty!'); return; }
+  if (characters.find((ch, i) => i !== editingCharIndex && ch.name.toLowerCase() === newName.toLowerCase())) { toast('Name already taken!'); return; }
+  const wasEquipped = currentCharacter && currentCharacter.name === c.name;
+  const updated = characterFromForm('edit');
+  characters[editingCharIndex] = updated;
+  if (wasEquipped) currentCharacter = updated;
+  save();
+  toast(`"${updated.name}" updated!`);
+  switchCharTab('roster');
+  renderCharList();
+  renderCharacterSheet();
+  updateD20Controls();
+  updateInitSection();
+  updateInitParticipantDropdown();
+}
+
+function skillModifier(c, skill) {
+  const ab = skillAbility(skill);
+  const training = c.proficiencies?.skills?.[skill] || 'none';
+  const multiplier = training === 'expertise' ? 2 : training === 'proficient' ? 1 : 0;
+  return statMod(c.stats[ab]) + proficiencyBonus(c.level) * multiplier;
+}
+
+function saveModifier(c, ab) {
+  return statMod(c.stats[ab]) + (c.proficiencies?.saves?.[ab] ? proficiencyBonus(c.level) : 0);
+}
+
+function initiativeModifier(c) {
+  return statMod(c.stats.DEX) + (parseInt(c.initiativeBonus) || 0);
+}
+
+function passivePerception(c) {
+  return 10 + skillModifier(c, 'Perception');
+}
+
+function renderCharacterSheet() {
+  const el = document.getElementById('character-sheet');
+  if (!el) return;
+  if (!currentCharacter) {
+    el.innerHTML = '<div class="history-empty">Equip a character from the roster to view the sheet.</div>';
+    return;
+  }
+  const c = currentCharacter;
+  const pb = proficiencyBonus(c.level);
+  const xpNext = c.level >= 20 ? 'Max' : XP_LEVELS[c.level + 1].toLocaleString();
+  const saveLines = ABILITIES.map(ab =>
+    `<div class="sheet-line"><span>${ABILITY_NAMES[ab]}${c.proficiencies?.saves?.[ab] ? ' *' : ''}</span><strong>${fmtMod(saveModifier(c, ab))}</strong></div>`
+  ).join('');
+  const skillLines = Object.entries(ABILITY_SKILLS).flatMap(([ab, skills]) => skills.map(sk => {
+    const training = c.proficiencies?.skills?.[sk] || 'none';
+    const mark = training === 'expertise' ? ' **' : training === 'proficient' ? ' *' : '';
+    return `<div class="sheet-line"><span>${sk}${mark}</span><strong>${fmtMod(skillModifier(c, sk))}</strong></div>`;
+  })).join('');
+  el.innerHTML = `
+    <div class="sheet-banner">
+      <div>
+        <div class="sheet-name">${esc(c.name)}</div>
+        <div class="sheet-meta">${esc(c.species || 'Adventurer')} ${esc(c.className)} ${c.level} · ${esc(c.background || 'No background')}${c.alignment ? ` · ${esc(c.alignment)}` : ''}</div>
+      </div>
+      <div class="sheet-badge-grid">
+        <div class="sheet-badge"><span>Proficiency</span><strong>${fmtMod(pb)}</strong></div>
+        <div class="sheet-badge"><span>XP / Next</span><strong style="font-size:1.05rem">${(c.xp || 0).toLocaleString()} / ${xpNext}</strong></div>
+      </div>
+    </div>
+    <div class="derived-grid">
+      <div class="derived-card"><span>Armor Class</span><strong>${c.armorClass}</strong></div>
+      <div class="derived-card"><span>Hit Points</span><strong>${c.currentHp}/${c.maxHp}</strong></div>
+      <div class="derived-card"><span>Initiative</span><strong>${fmtMod(initiativeModifier(c))}</strong></div>
+      <div class="derived-card"><span>Speed</span><strong>${c.speed}</strong></div>
+      <div class="derived-card"><span>Hit Dice</span><strong>${c.level}d${hitDieFor(c.className)}</strong></div>
+      <div class="derived-card"><span>Passive Perception</span><strong>${passivePerception(c)}</strong></div>
+      <div class="derived-card"><span>Spell Save DC</span><strong>${8 + pb + statMod(c.stats[spellAbilityFor(c.className)])}</strong></div>
+      <div class="derived-card"><span>Spell Attack</span><strong>${fmtMod(pb + statMod(c.stats[spellAbilityFor(c.className)]))}</strong></div>
+    </div>
+    <div class="ability-grid">${ABILITIES.map(ab =>
+      `<div class="ability-card"><span>${ab}</span><strong>${c.stats[ab]}</strong><em>${fmtMod(statMod(c.stats[ab]))}</em></div>`
+    ).join('')}</div>
+    <div class="sheet-columns">
+      <div class="sheet-block"><div class="section-title">Saving Throws</div>${saveLines}</div>
+      <div class="sheet-block"><div class="section-title">Skills</div>${skillLines}</div>
+    </div>
+    <div class="sheet-block" style="margin-top:14px">
+      <div class="section-title">Equipment, Features &amp; Spells</div>
+      <div style="white-space:pre-wrap;color:var(--text-mid)">${esc(c.notes || 'No notes yet.')}</div>
+    </div>`;
+}
+
+function spellAbilityFor(cls) {
+  return {
+    Bard: 'CHA',
+    Cleric: 'WIS',
+    Druid: 'WIS',
+    Paladin: 'CHA',
+    Ranger: 'WIS',
+    Sorcerer: 'CHA',
+    Warlock: 'CHA',
+    Wizard: 'INT',
+  }[cls] || 'INT';
+}
+
+function levelUpCharacter() {
+  if (editingCharIndex < 0) return;
+  const levelEl = document.getElementById('edit-level');
+  const oldLevel = clampLevel(levelEl.value);
+  if (oldLevel >= 20) { toast('Level 20 is the 5e cap.'); return; }
+  const stats = readStats('e');
+  const cls = document.getElementById('edit-class').value || 'Fighter';
+  const hitDie = hitDieFor(cls);
+  const method = document.getElementById('level-hp-method').value;
+  const roll = method === 'roll' ? rollDie(hitDie) : fixedHpGain(hitDie);
+  const gain = Math.max(1, roll + statMod(stats.CON));
+  const maxHpEl = document.getElementById('edit-max-hp');
+  const currentHpEl = document.getElementById('edit-current-hp');
+  levelEl.value = oldLevel + 1;
+  maxHpEl.value = (parseInt(maxHpEl.value) || 1) + gain;
+  currentHpEl.value = (parseInt(currentHpEl.value) || 0) + gain;
+  document.getElementById('edit-xp').value = Math.max(parseInt(document.getElementById('edit-xp').value) || 0, XP_LEVELS[oldLevel + 1]);
+  syncCharacterMath('edit');
+  toast(`Level ${oldLevel + 1}! HP increased by ${gain}.`);
+}
+
+function fireRipple(btn) {
+  if (!btn) return;
+  btn.style.position = 'relative';
+  const r = document.createElement('span');
+  r.className = 'ripple-el';
+  r.style.left = (btn.offsetWidth / 2) + 'px';
+  r.style.top  = (btn.offsetHeight / 2) + 'px';
+  btn.appendChild(r);
+  r.addEventListener('animationend', () => r.remove(), { once: true });
+}
+
+function spawnParticles(container) {
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / 8) * Math.PI * 2;
+    const dist  = 45 + Math.random() * 35;
+    p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+    p.style.left = '50%'; p.style.top = '45%';
+    p.style.marginLeft = '-3px'; p.style.marginTop = '-3px';
+    p.style.background = i % 2 === 0 ? 'var(--gold)' : 'var(--ember)';
+    container.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+  }
+}
+
+function scrambleThenReveal(resultEl, finalHtml, sides, duration = 320) {
+  const scrambleEl = document.createElement('div');
+  scrambleEl.className = 'roll-number';
+  scrambleEl.style.cssText = 'color:var(--text-dim);font-size:4rem;';
+  resultEl.innerHTML = '';
+  resultEl.appendChild(scrambleEl);
+
+  let ticks = 0;
+  const maxTicks = Math.floor(duration / 55);
+  const iv = setInterval(() => {
+    scrambleEl.textContent = Math.floor(Math.random() * sides) + 1;
+    ticks++;
+    if (ticks >= maxTicks) {
+      clearInterval(iv);
+      resultEl.innerHTML = finalHtml;
+      spawnParticles(resultEl);
+    }
+  }, 55);
+}
+
+function doRoll(sides, qty, mod, desc, roller, resultElId) {
+  const rolls = Array.from({length: qty}, () => rollDie(sides));
+  const sum   = rolls.reduce((a, b) => a + b, 0) + mod;
+  const resultEl = document.getElementById(resultElId);
+
+  // Pulse border
+  resultEl.classList.add('rolling');
+  setTimeout(() => resultEl.classList.remove('rolling'), 700);
+
+  // Shimmer flash
+  resultEl.classList.remove('flash');
+  void resultEl.offsetWidth;
+  resultEl.classList.add('flash');
+  setTimeout(() => resultEl.classList.remove('flash'), 600);
+
+  let special = '';
+  if (sides === 20 && qty === 1) { if (rolls[0] === 20) special = 'nat20'; else if (rolls[0] === 1) special = 'nat1'; }
+
+  let html = '';
+  if (qty === 1) {
+    html = `<div class="roll-number${special ? ' '+special : ''} animating">${sum}</div>`;
+    if (mod !== 0) html += `<div class="roll-breakdown">${rolls[0]} ${fmtMod(mod)}</div>`;
+    html += `<div class="roll-desc">${esc(roller)} rolled D${sides}${desc ? ` · ${esc(desc)}` : ''}</div>`;
+    if (special === 'nat20') html += `<div class="special-msg nat20-msg">✨ Natural 20!</div>`;
+    if (special === 'nat1')  html += `<div class="special-msg nat1-msg">💀 Natural 1...</div>`;
+  } else {
+    html = `<div class="roll-number animating">${sum}</div>`;
+    html += `<div class="multi-roll-results">${rolls.map(r => `<div class="multi-die">${r}</div>`).join('')}</div>`;
+    if (mod !== 0) html += `<div class="roll-breakdown">Sum ${rolls.reduce((a,b)=>a+b,0)} ${fmtMod(mod)} = ${sum}</div>`;
+    html += `<div class="roll-desc">${esc(roller)} rolled ${qty}D${sides}${desc ? ` · ${esc(desc)}` : ''}</div>`;
+  }
+
+  // Scramble then reveal
+  scrambleThenReveal(resultEl, html, sides, qty === 1 ? 350 : 200);
+
+  // Nat20 ring — delayed to appear after reveal
+  if (special === 'nat20') {
+    setTimeout(() => {
+      const ring = document.createElement('div');
+      ring.className = 'nat20-ring';
+      ring.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)';
+      resultEl.appendChild(ring);
+      ring.addEventListener('animationend', () => ring.remove(), { once: true });
+    }, 360);
+  }
+
+  return { rolls, sum, special };
+}
+
+function rollDice() {
+  const qty  = Math.max(1, Math.min(20, parseInt(document.getElementById('dice-qty').value) || 1));
+  const mod  = parseInt(document.getElementById('dice-mod').value) || 0;
+  const desc = document.getElementById('dice-desc').value.trim();
+  const roller = currentCharacter ? currentCharacter.name : 'You';
+
+  // Ripple the button
+  fireRipple(document.querySelector('[onclick="rollDice()"]'));
+
+  const { rolls, sum, special } = doRoll(selectedDie, qty, mod, desc, roller, 'roll-result');
+  addHistory(`${roller} rolled ${qty > 1 ? qty : ''}D${selectedDie}${mod ? fmtMod(mod) : ''} = ${sum}${desc ? ` (${desc})` : ''}${special === 'nat20' ? ' ✨ Nat 20!' : ''}${special === 'nat1' ? ' 💀 Nat 1' : ''}`, selectedDie);
+}
+
+function setD20Mode(mode) {
+  d20Mode = mode;
+  ['normal','advantage','disadvantage'].forEach(m => document.getElementById(`mode-${m}`).classList.toggle('active', m === mode));
+}
+
+function updateSkillOptions() {
+  const rollType = document.getElementById('d20-roll-type')?.value || 'ability';
+  const ability = document.getElementById('check-type').value;
+  const wrap    = document.getElementById('skill-select-wrap');
+  if (rollType !== 'ability' || !ability || !ABILITY_SKILLS[ability]?.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  const sel = document.getElementById('skill-type');
+  sel.innerHTML = `<option value="">— Ability check only —</option>`;
+  ABILITY_SKILLS[ability].forEach(sk => sel.innerHTML += `<option value="${sk}">${sk}</option>`);
+}
+
+function updateD20Controls() {
+  const rollType = document.getElementById('d20-roll-type')?.value || 'ability';
+  const abilityWrap = document.getElementById('check-type')?.closest('.input-group');
+  const label = document.getElementById('check-type-label');
+  if (abilityWrap) abilityWrap.style.display = rollType === 'plain' ? 'none' : '';
+  if (label) label.textContent = rollType === 'save' ? 'Saving Throw Ability' : 'Ability';
+  updateSkillOptions();
+}
+
+function rollD20() {
+  const desc = document.getElementById('d20-desc').value.trim();
+  const rollType = document.getElementById('d20-roll-type')?.value || 'ability';
+  const ability = document.getElementById('check-type').value;
+  const skill   = document.getElementById('skill-type')?.value || '';
+  const roller  = currentCharacter ? currentCharacter.name : 'You';
+  const resultEl = document.getElementById('d20-result');
+
+  fireRipple(document.querySelector('[onclick="rollD20()"]'));
+
+  let roll1 = rollDie(20), roll2 = rollDie(20), finalRoll, modeLabel = '';
+  if (d20Mode === 'advantage')    { finalRoll = Math.max(roll1, roll2); modeLabel = `Advantage [${roll1}, ${roll2}] → `; }
+  else if (d20Mode === 'disadvantage') { finalRoll = Math.min(roll1, roll2); modeLabel = `Disadvantage [${roll1}, ${roll2}] → `; }
+  else { finalRoll = roll1; }
+
+  let mod = 0, modLabel = '';
+  if (currentCharacter) {
+    if (rollType === 'save' && ability) {
+      mod = saveModifier(currentCharacter, ability);
+      modLabel = `${ABILITY_NAMES[ability]} save ${fmtMod(mod)}`;
+    } else if (rollType === 'ability' && skill) {
+      mod = skillModifier(currentCharacter, skill);
+      modLabel = `${skill} ${fmtMod(mod)}`;
+    } else if (rollType === 'ability' && ability) {
+      mod = statMod(currentCharacter.stats[ability]);
+      modLabel = `${ABILITY_NAMES[ability]} ${fmtMod(mod)}`;
+    }
+  } else if (rollType !== 'plain' && ability) {
+    modLabel = `${ABILITY_NAMES[ability]}`;
+  }
+
+  const total   = finalRoll + mod;
+  const special = finalRoll === 20 ? 'nat20' : finalRoll === 1 ? 'nat1' : '';
+
+  let html = `<div class="roll-number${special ? ' '+special : ''} animating">${total}</div>`;
+  if (mod !== 0) html += `<div class="roll-breakdown">${modeLabel || ''}${finalRoll} ${fmtMod(mod)}</div>`;
+  else if (d20Mode !== 'normal') html += `<div class="roll-breakdown">${modeLabel}${finalRoll}</div>`;
+  html += `<div class="roll-desc">${esc(roller)}${modLabel ? ` · ${esc(modLabel)}` : ''}${desc ? ` · ${esc(desc)}` : ''}</div>`;
+  if (special === 'nat20') html += `<div class="special-msg nat20-msg">✨ Natural 20!</div>`;
+  if (special === 'nat1')  html += `<div class="special-msg nat1-msg">💀 Natural 1...</div>`;
+
+  // Animations
+  resultEl.classList.add('rolling');
+  setTimeout(() => resultEl.classList.remove('rolling'), 700);
+  resultEl.classList.remove('flash'); void resultEl.offsetWidth; resultEl.classList.add('flash');
+  setTimeout(() => resultEl.classList.remove('flash'), 600);
+
+  scrambleThenReveal(resultEl, html, 20, 350);
+
+  if (special === 'nat20') {
+    setTimeout(() => {
+      const ring = document.createElement('div');
+      ring.className = 'nat20-ring';
+      ring.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)';
+      resultEl.appendChild(ring);
+      ring.addEventListener('animationend', () => ring.remove(), { once: true });
+    }, 360);
+  }
+
+  addHistory(`${roller} ${modLabel || 'D20'} check${d20Mode !== 'normal' ? ` (${d20Mode})` : ''}: ${finalRoll}${mod ? fmtMod(mod) : ''} = ${total}${desc ? ` (${desc})` : ''}${special === 'nat20' ? ' ✨ Nat 20!' : ''}${special === 'nat1' ? ' 💀 Nat 1' : ''}`, 20);
+}
+
+function updateInitSection() {
+  const el = document.getElementById('init-current-char');
+  if (currentCharacter) {
+    el.innerHTML = `<div style="background:var(--bg-card2);border:1px solid var(--border-gold);border-radius:5px;padding:12px 16px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.5rem">⚔</span>
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.1em;color:var(--text-dim);text-transform:uppercase;margin-bottom:3px">Equipped — will roll automatically</div>
+        <div style="font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold-light)">${esc(currentCharacter.name)} · Initiative ${fmtMod(initiativeModifier(currentCharacter))}</div>
+      </div></div>`;
+  } else {
+    el.innerHTML = `<div style="font-style:italic;color:var(--text-dim);font-size:1.05rem;padding:4px 0">No character equipped. Add participants below.</div>`;
+  }
+}
+
+function updateInitParticipantDropdown() {
+  const sel = document.getElementById('init-add-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select character —</option>';
+  characters.forEach(c => {
+    if (currentCharacter && c.name === currentCharacter.name) return;
+    if (initParticipants.find(p => p.name === c.name)) return;
+    sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+  });
+}
+
+function addInitParticipant() {
+  const sel = document.getElementById('init-add-select');
+  const name = sel.value;
+  if (!name) return;
+  const char = characters.find(c => c.name === name);
+  if (!char || initParticipants.find(p => p.name === name)) return;
+  initParticipants.push(char);
+  renderInitParticipants(); updateInitParticipantDropdown();
+}
+
+function removeInitParticipant(name) {
+  initParticipants = initParticipants.filter(p => p.name !== name);
+  renderInitParticipants(); updateInitParticipantDropdown();
+}
+
+function renderInitParticipants() {
+  document.getElementById('init-participants').innerHTML = initParticipants.map(p =>
+    `<div style="display:flex;align-items:center;gap:8px;background:var(--bg-card2);border:1px solid var(--border-gold);border-radius:4px;padding:7px 13px;font-family:'Cinzel',serif;font-size:0.85rem;color:var(--text-mid)">
+      ${esc(p.name)}
+      <button onclick='removeInitParticipant(${JSON.stringify(p.name)})' style="background:none;border:none;color:var(--blood-light);cursor:pointer;font-size:1rem;padding:0 0 0 6px;line-height:1">✕</button>
+    </div>`).join('');
+}
+
+function rollGroupInitiative() {
+  const all = [];
+  if (currentCharacter) all.push(currentCharacter);
+  initParticipants.forEach(p => { if (!all.find(a => a.name === p.name)) all.push(p); });
+  if (all.length === 0) { toast('Add at least one participant!'); return; }
+  const entries = all.map(c => {
+    const raw = rollDie(20), dex = statMod(c.stats.DEX), bonus = parseInt(c.initiativeBonus) || 0;
+    return { name: c.name, raw, dex, bonus, total: raw + initiativeModifier(c) };
+  }).sort((a, b) => b.total - a.total);
+
+  const ranks = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+  let html = `<div class="initiative-results"><div class="init-header">⚔ Initiative Order</div>`;
+  entries.forEach((e, i) => {
+    const bonusStr = e.bonus !== 0 ? ` ${fmtMod(e.bonus)} bonus` : '';
+    html += `<div class="init-row">
+      <span class="init-rank">${ranks[i] || i+1}</span>
+      <div><div class="init-name">${e.name}</div><div class="init-breakdown">${e.raw} + DEX ${fmtMod(e.dex)}${bonusStr} = ${e.total}</div></div>
+      <span class="init-score">${e.total}</span>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('initiative-results').innerHTML = html;
+  addHistory(`Initiative: ${entries.map(e => `${e.name}(${e.total})`).join(' > ')}`, 20);
+}
+
+function addHistory(msg, sides) {
+  history.unshift({ msg, sides, ts: Date.now() });
+  if (history.length > 200) history.pop();
+  save(); renderHistory();
+}
+
+function renderHistory() {
+  const log = document.getElementById('history-log');
+  if (history.length === 0) { log.innerHTML = '<div class="history-empty">No rolls yet. Begin your adventure!</div>'; return; }
+  log.innerHTML = history.map(h => `<div class="history-entry"><span class="die-icon">${DIE_SHAPES[h.sides] || '🎲'}</span><span class="entry-text">${esc(h.msg)}</span></div>`).join('');
+}
+
+function clearHistory() {
+  if (!history.length) { toast('History is already empty.'); return; }
+  history = []; save(); renderHistory(); toast('History cleared.');
+}
+
+function toast(msg) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg; c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 2600);
+}
+
+init();
+</script>
+</body>
+</html>
